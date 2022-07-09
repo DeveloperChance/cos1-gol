@@ -13,8 +13,10 @@ namespace cos1_gol
     public partial class Form1 : Form
     {
         // The universe array
-        bool[,] universe = new bool[5, 5]; 
-        bool[,] scratchPad = new bool[5, 5]; // universe for new generations
+        static int universeX = 20;
+        static int universeY = 10;
+        bool[,] universe = new bool[universeX, universeY]; 
+        bool[,] scratchPad = new bool[universeX, universeY]; // universe for new generations
         
         // Drawing colors
         Color gridColor = Color.Black;
@@ -56,10 +58,27 @@ namespace cos1_gol
                 //Iterate through the universe in the x, left to right
                 for (int x = 0; x < universe.GetLength(0); x++)
                 {
-                    //int count = CountNeighbor(x,y);
+                    bool cell = universe[x, y];
+                    int count;
+                    if (finiteToolStripMenuItem.Checked) count = CountNeighborsFinite(x,y);
+                    else count = CountNeighborsToroidal(x,y);
 
-                    // Apply The GOL Rules - Do not turn off in universe
-                    // Turn on/off in the scratch pad
+                    // Apply The GOL Rules - Turn On/Off in Scratch Pad
+                    /** RULES
+                     * Living cells with less than 2 living neighbors die in the next generation.
+                     * Living cells with more than 3 living neighbors die in the next generation.
+                     * Living cells with 2 or 3 living neighbors live in the next generation.
+                     * Dead cells with exactly 3 living neighbors live in the next generation.
+                    */
+
+                    if (cell){
+                        // Cell is alive
+                        if (count < 2) scratchPad[x, y] = false;
+                        if (count > 3) scratchPad[x, y] = false;
+                    } else {
+                        // Cell is dead
+                        if (count == 3) scratchPad[x, y] = true;
+                    }
                 }
             }
 
@@ -73,6 +92,13 @@ namespace cos1_gol
 
             // Update status strip generations
             toolStripStatusLabelGenerations.Text = "Generations = " + generations.ToString();
+
+            // Update Status Strip Alive
+            int aliveCount = 0;
+            for (int y = 0; y < universe.GetLength(1); y++)
+                for (int x = 0; x < universe.GetLength(0); x++)
+                    if (universe[x, y]) aliveCount++;
+            toolStripStatusLabel1.Text = "Alive = " + aliveCount.ToString();
 
             // Invalidate Graphics Panel
             graphicsPanel1.Invalidate();
@@ -146,6 +172,13 @@ namespace cos1_gol
                 // convert back to int to round 
                 universe[(int)x, (int)y] = !universe[(int)x, (int)y];
 
+                // Update Status Strip Alive
+                int aliveCount = 0;
+                for (int y2 = 0; y2 < universe.GetLength(1); y2++)
+                    for (int x2 = 0; x2 < universe.GetLength(0); x2++)
+                        if (universe[x2, y2]) aliveCount++;
+                toolStripStatusLabel1.Text = "Alive = " + aliveCount.ToString();
+
                 // Tell Windows you need to repaint
                 graphicsPanel1.Invalidate();
             }
@@ -217,7 +250,7 @@ namespace cos1_gol
         /**
          * Swap NeighborCount Draw Methods
          */
-        private void finiteToolStripMenuItem_Click(object sender, EventArgs e)
+                    private void finiteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Set Finite Neighbor Count to True & Toridal Neighbor Count to False
             finiteToolStripMenuItem.Checked = true;
@@ -248,5 +281,56 @@ namespace cos1_gol
         {
             gridToolStripMenuItem.Checked = !gridToolStripMenuItem.Checked;
         }
+
+        private int CountNeighborsFinite(int x, int y){
+            int count = 0;
+            int xLen = universe.GetLength(0);
+            int yLen = universe.GetLength(1);
+
+            for (int yOffset = -1; yOffset <= 1; yOffset++){
+                for (int xOffset = -1; xOffset <= 1; xOffset++){
+                    int xCheck = x + xOffset;
+                    int yCheck = y + yOffset;
+
+                    // if xOffset and yOffset are both equal to 0 then continue
+                    if (xOffset == 0 && yOffset == 0) continue;
+                    // if xCheck/yCheck is less than 0 then continue
+                    if (xCheck < 0 || yCheck < 0) continue;
+                    // if xCheck/yCheck is greater than or equal too xLen/yLen then continue
+                    if (xCheck >= xLen || yCheck >= yLen) continue;
+
+                    if (universe[xCheck, yCheck] == true) count++;
+                }
+            }
+            return count;
+        }
+
+        private int CountNeighborsToroidal(int x, int y){
+            int count = 0;
+            int xLen = universe.GetLength(0);
+            int yLen = universe.GetLength(1);
+
+            for (int yOffset = -1; yOffset <= 1; yOffset++){
+                for (int xOffset = -1; xOffset <= 1; xOffset++){
+                    int xCheck = x + xOffset;
+                    int yCheck = y + yOffset;
+
+                    // if xOffset and yOffset are both equal to 0 then continue
+                    if (xOffset == 0 && yOffset == 0) continue;
+                    // if xCheck is less than 0 then set to xLen - 1
+                    if (xCheck < 0) xCheck = xLen - 1;
+                    // if yCheck is less than 0 then set to yLen - 1
+                    if (yCheck < 0) yCheck = yLen - 1;
+                    // if xCheck is greater than or equal too xLen then set to 0
+                    if (xCheck >= xLen) xCheck = 0;
+                    // if yCheck is greater than or equal too yLen then set to 0
+                    if (yCheck >= yLen) yCheck = 0;
+
+                    if (universe[xCheck, yCheck] == true) count++;
+                }
+            }
+            return count;
+        }
+
     }
 }
