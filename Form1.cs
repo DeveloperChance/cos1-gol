@@ -13,14 +13,16 @@ namespace cos1_gol
     public partial class Form1 : Form
     {
         // The universe array
-        static int universeX = 20;
-        static int universeY = 10;
+        private static int universeX = 30;
+        private static int universeY = 30;
         bool[,] universe = new bool[universeX, universeY]; 
         bool[,] scratchPad = new bool[universeX, universeY]; // universe for new generations
         
         // Drawing colors
-        Color gridColor = Color.Black;
+        Color backColor = Color.White;
         Color cellColor = Color.Gray;
+        Color gridColor = Color.Black;
+        Color byTenColor = Color.Black;
 
         // The Timer class
         Timer timer = new Timer();
@@ -60,6 +62,8 @@ namespace cos1_gol
                 {
                     bool cell = universe[x, y];
                     int count;
+
+                    // Run Count Alg based off of setting option
                     if (finiteToolStripMenuItem.Checked) count = CountNeighborsFinite(x,y);
                     else count = CountNeighborsToroidal(x,y);
 
@@ -94,11 +98,11 @@ namespace cos1_gol
             toolStripStatusLabelGenerations.Text = "Generations = " + generations.ToString();
 
             // Update Status Strip Alive
-            int aliveCount = 0;
+            int aliveCount = 0; // Total count for alive cells
             for (int y = 0; y < universe.GetLength(1); y++)
                 for (int x = 0; x < universe.GetLength(0); x++)
-                    if (universe[x, y]) aliveCount++;
-            toolStripStatusLabel1.Text = "Alive = " + aliveCount.ToString();
+                    if (universe[x, y]) aliveCount++; // Add alive cell to count
+            toolStripStatusLabel1.Text = "Alive = " + aliveCount.ToString(); // Write alive count to status
 
             // Invalidate Graphics Panel
             graphicsPanel1.Invalidate();
@@ -107,7 +111,7 @@ namespace cos1_gol
         // The event called by the timer every Interval milliseconds.
         private void Timer_Tick(object sender, EventArgs e)
         {
-            NextGeneration();
+            NextGeneration(); // Run The Next Generation
         }
 
         private void graphicsPanel1_Paint(object sender, PaintEventArgs e)
@@ -121,8 +125,14 @@ namespace cos1_gol
             // A Pen for drawing the grid lines (color, width)
             Pen gridPen = new Pen(gridColor, 1);
 
+            // A penf or drawing the 10x10 grid lines (color, width)
+            Pen byTenPen = new Pen(byTenColor, 2);
+
             // A Brush for filling living cells interiors (color)
             Brush cellBrush = new SolidBrush(cellColor);
+
+            // A Brush for filling dead cells interiors (color)
+            Brush backBrush = new SolidBrush(backColor);
 
             // Iterate through the universe in the y, top to bottom
             for (int y = 0; y < universe.GetLength(1); y++)
@@ -140,17 +150,34 @@ namespace cos1_gol
                     // Fill the cell with a brush if alive
                     if (universe[x, y] == true)
                     {
-                        e.Graphics.FillRectangle(cellBrush, cellRect);
+                        e.Graphics.FillRectangle(cellBrush, cellRect); // fill live cell
+                    }
+                    else
+                    {
+                        e.Graphics.FillRectangle(backBrush, cellRect); // fill dead cell
                     }
 
-                    // Outline the cell with a pen
-                    e.Graphics.DrawRectangle(gridPen, cellRect.X, cellRect.Y, cellRect.Width, cellRect.Height);
+                    // Outline the cell with a pen if enabled
+                    if(gridToolStripMenuItem.Checked) e.Graphics.DrawRectangle(gridPen, cellRect.X, cellRect.Y, cellRect.Width, cellRect.Height);
+
+
+                    // If the 10x10 grid is enabled, draw
+                    if (x10GridToolStripMenuItem.Checked) {
+                        // Draw 10x10 Horizontal - Does not draw if the y is 0 (at the top of the screen)
+                        if (y % 10 == 0 && y != 0) e.Graphics.DrawRectangle(byTenPen, cellRect.X, cellRect.Y, cellRect.Width, 1);
+
+                        // Draw 10x10 Vertical - Does not draw if the x is 0 (at the left of the screen)
+                        if(x % 10 == 0 && x != 0) e.Graphics.DrawRectangle(byTenPen, cellRect.X, cellRect.Y, 1, cellRect.Height);
+                    }
+
                 }
             }
 
             // Cleaning up pens and brushes
             gridPen.Dispose();
+            byTenPen.Dispose();
             cellBrush.Dispose();
+            backBrush.Dispose();
         }
 
         private void graphicsPanel1_MouseClick(object sender, MouseEventArgs e)
@@ -247,10 +274,27 @@ namespace cos1_gol
             graphicsPanel1.Invalidate();
         }
 
+        // New Universe - Menu: Tools -> Reset
+        private void resetToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            // Iterate through the universe in the y, top to bottom
+            for (int y = 0; y < universe.GetLength(1); y++)
+            {
+                // Iterate through the universe in the x, left to right
+                for (int x = 0; x < universe.GetLength(0); x++)
+                {
+                    universe[x, y] = false;
+                }
+            }
+
+            // Invalidate Graphics Panel
+            graphicsPanel1.Invalidate();
+        }
+
         /**
          * Swap NeighborCount Draw Methods
          */
-                    private void finiteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void finiteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Set Finite Neighbor Count to True & Toridal Neighbor Count to False
             finiteToolStripMenuItem.Checked = true;
@@ -268,18 +312,31 @@ namespace cos1_gol
         private void hUDToolStripMenuItem_Click(object sender, EventArgs e)
         {
             hUDToolStripMenuItem.Checked = !hUDToolStripMenuItem.Checked;
+            // Tell Windows you need to repaint
+            graphicsPanel1.Invalidate();
         }
 
         // Switch NeighborCount Drawing On/Off
         private void neighborCountToolStripMenuItem_Click(object sender, EventArgs e)
         {
             neighborCountToolStripMenuItem.Checked = !neighborCountToolStripMenuItem.Checked;
+            // Tell Windows you need to repaint
+            graphicsPanel1.Invalidate();
         }
 
         // Switch Grid Drawing On/Off
         private void gridToolStripMenuItem_Click(object sender, EventArgs e)
         {
             gridToolStripMenuItem.Checked = !gridToolStripMenuItem.Checked;
+            // Tell Windows you need to repaint
+            graphicsPanel1.Invalidate();
+        }
+
+        private void x10GridToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            x10GridToolStripMenuItem.Checked = !x10GridToolStripMenuItem.Checked;
+            // Tell Windows you need to repaint
+            graphicsPanel1.Invalidate();
         }
 
         private int CountNeighborsFinite(int x, int y){
@@ -330,6 +387,119 @@ namespace cos1_gol
                 }
             }
             return count;
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Options dlg = new Options();
+
+            // Set Current Interval & Universe Size Values
+            dlg.Interval = timer.Interval;
+            dlg.XCell = universeX;
+            dlg.YCell = universeY;
+
+            // Show Dialog Box to User & Determine Result
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+
+                // Set New Interval
+                timer.Interval = dlg.Interval;
+
+
+                // Only reset universe size if size has changed
+                if (universeX != dlg.XCell || universeY != dlg.YCell)
+                {
+                    // Set new Universe Sizes
+                    universeX = dlg.XCell;
+                    universeY = dlg.YCell;
+
+                    // Create new Univese
+                    universe = new bool[universeX, universeY];
+                    scratchPad = new bool[universeX, universeY];
+                }
+
+                // Invalidate Graphics Panel
+                graphicsPanel1.Invalidate();
+            }
+        }
+
+        private void backColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create Instance of Dialog Box
+            ColorDialog dlg = new ColorDialog();
+
+            // Construct the Dialog Box
+            dlg.Color = backColor;
+
+            // Show Dialog Box to User & Determine Result
+            if (DialogResult.OK == dlg.ShowDialog()) {
+
+                // Update Color to Chosen Color
+                backColor = dlg.Color; 
+                
+                // Invalidate Graphics Panel
+                graphicsPanel1.Invalidate();
+            }
+        }
+
+        private void cellColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create Instance of Dialog Box
+            ColorDialog dlg = new ColorDialog();
+
+            // Construct the Dialog Box
+            dlg.Color = cellColor;
+
+            // Show Dialog Box to User & Determine Result
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+
+                // Update Color to Chosen Color
+                cellColor = dlg.Color;
+
+                // Invalidate Graphics Panel
+                graphicsPanel1.Invalidate();
+            }
+        }
+
+        private void gridColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create Instance of Dialog Box
+            ColorDialog dlg = new ColorDialog();
+
+            // Construct the Dialog Box
+            dlg.Color = gridColor;
+
+            // Show Dialog Box to User & Determine Result
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+
+                // Update Color to Chosen Color
+                gridColor = dlg.Color;
+
+                // Invalidate Graphics Panel
+                graphicsPanel1.Invalidate();
+            }
+        }
+
+        private void gridX10ColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Create Instance of Dialog Box
+            ColorDialog dlg = new ColorDialog();
+
+            // Construct the Dialog Box
+            dlg.Color = byTenColor;
+
+            // Show Dialog Box to User & Determine Result
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+
+                // Update Color to Chosen Color
+                byTenColor = dlg.Color;
+
+                // Invalidate Graphics Panel
+                graphicsPanel1.Invalidate();
+            }
         }
 
     }
