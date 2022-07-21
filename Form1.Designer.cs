@@ -83,10 +83,10 @@ namespace cos1_gol
             this.toolStripStatusLabelGenerations = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.graphicsPanel1 = new cos1_gol.GraphicsPanel();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reloadSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.graphicsPanel1 = new cos1_gol.GraphicsPanel();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -281,18 +281,21 @@ namespace cos1_gol
             this.fromSeedToolStripMenuItem.Name = "fromSeedToolStripMenuItem";
             this.fromSeedToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.fromSeedToolStripMenuItem.Text = "From Seed";
+            this.fromSeedToolStripMenuItem.Click += new System.EventHandler(this.fromSeedToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(173, 22);
             this.toolStripMenuItem1.Text = "From Current Seed";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // fromTimeToolStripMenuItem
             // 
             this.fromTimeToolStripMenuItem.Name = "fromTimeToolStripMenuItem";
             this.fromTimeToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.fromTimeToolStripMenuItem.Text = "From Time";
+            this.fromTimeToolStripMenuItem.Click += new System.EventHandler(this.fromTimeToolStripMenuItem_Click);
             // 
             // settinsToolStripMenuItem
             // 
@@ -345,7 +348,7 @@ namespace cos1_gol
             this.gridColorToolStripMenuItem,
             this.gridX10ColorToolStripMenuItem});
             this.customizeToolStripMenuItem.Name = "customizeToolStripMenuItem";
-            this.customizeToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.customizeToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.customizeToolStripMenuItem.Text = "&Customize";
             // 
             // backColorToolStripMenuItem
@@ -379,7 +382,7 @@ namespace cos1_gol
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.optionsToolStripMenuItem.Text = "&Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
@@ -545,8 +548,27 @@ namespace cos1_gol
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(54, 17);
-            this.toolStripStatusLabel2.Text = "Seed = ~";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(52, 17);
+            this.toolStripStatusLabel2.Text = "Seed = 0";
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(152, 6);
+            // 
+            // resetToolStripMenuItem
+            // 
+            this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
+            this.resetToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.resetToolStripMenuItem.Text = "Reset Settings";
+            this.resetToolStripMenuItem.Click += new System.EventHandler(this.resetToolStripMenuItem_Click);
+            // 
+            // reloadSettingsToolStripMenuItem
+            // 
+            this.reloadSettingsToolStripMenuItem.Name = "reloadSettingsToolStripMenuItem";
+            this.reloadSettingsToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
+            this.reloadSettingsToolStripMenuItem.Text = "Reload Settings";
+            this.reloadSettingsToolStripMenuItem.Click += new System.EventHandler(this.reloadSettingsToolStripMenuItem_Click);
             // 
             // graphicsPanel1
             // 
@@ -558,25 +580,6 @@ namespace cos1_gol
             this.graphicsPanel1.TabIndex = 3;
             this.graphicsPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.graphicsPanel1_Paint);
             this.graphicsPanel1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.graphicsPanel1_MouseClick);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(177, 6);
-            // 
-            // resetToolStripMenuItem
-            // 
-            this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-            this.resetToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.resetToolStripMenuItem.Text = "Reset Settings";
-            this.resetToolStripMenuItem.Click += new System.EventHandler(this.resetToolStripMenuItem_Click);
-            // 
-            // reloadSettingsToolStripMenuItem
-            // 
-            this.reloadSettingsToolStripMenuItem.Name = "reloadSettingsToolStripMenuItem";
-            this.reloadSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.reloadSettingsToolStripMenuItem.Text = "Reload Settings";
-            this.reloadSettingsToolStripMenuItem.Click += new System.EventHandler(this.reloadSettingsToolStripMenuItem_Click);
             // 
             // Form1
             // 

@@ -30,6 +30,9 @@ namespace cos1_gol
         // Generation count
         int generations = 0;
 
+        // Current Seed
+        int seed = 0;
+
         public Form1()
         {
             InitializeComponent();
@@ -109,15 +112,9 @@ namespace cos1_gol
             // Increment generation count
             generations++;
 
-            // Update status strip generations
-            toolStripStatusLabelGenerations.Text = "Generations = " + generations.ToString();
+            // Update Strip Info
+            UpdateStripInfo();
 
-            // Update Status Strip Alive
-            int aliveCount = 0; // Total count for alive cells
-            for (int y = 0; y < universe.GetLength(1); y++)
-                for (int x = 0; x < universe.GetLength(0); x++)
-                    if (universe[x, y]) aliveCount++; // Add alive cell to count
-            toolStripStatusLabel1.Text = "Alive = " + aliveCount.ToString(); // Write alive count to status
 
             // Invalidate Graphics Panel
             graphicsPanel1.Invalidate();
@@ -290,23 +287,6 @@ namespace cos1_gol
 
         // New Universe - Toolbar
         private void newToolStripButton_Click(object sender, EventArgs e)
-        {
-            // Iterate through the universe in the y, top to bottom
-            for (int y = 0; y < universe.GetLength(1); y++)
-            {
-                // Iterate through the universe in the x, left to right
-                for (int x = 0; x < universe.GetLength(0); x++)
-                {
-                    universe[x, y] = false;
-                }
-            }
-
-            // Invalidate Graphics Panel
-            graphicsPanel1.Invalidate();
-        }
-
-        // New Universe - Menu: Tools -> Reset
-        private void resetToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             // Iterate through the universe in the y, top to bottom
             for (int y = 0; y < universe.GetLength(1); y++)
@@ -607,5 +587,93 @@ namespace cos1_gol
             // Invalidate Graphics Panel
             graphicsPanel1.Invalidate();
         }
+
+        // Menu - Randomize -> From Seed
+        private void fromSeedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Seed dlg = new Seed();
+
+            // Set Current Seed
+            dlg.seed = seed;
+         
+
+            // Show Dialog Box to User & Determine Result
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+                seed = dlg.seed;
+                Randomize();
+            }
+        }
+
+        // Menu - Randomize -> From Current Seed
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Randomize();
+        }
+
+        // Menu - Randomize -> From Time
+        private void fromTimeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            seed = (int)DateTime.Now.Ticks;
+            Randomize();
+        }
+
+        // Randomize GOL
+        private void Randomize()
+        {
+            Random rand = new Random(seed); // Init Rand Variable
+
+            // Clear ScratchPad
+            // Iterate through the universe in the y, top to bottom
+            for (int y = 0; y < universe.GetLength(1); y++)
+            {
+                // Iterate through the universe in the x, left to right
+                for (int x = 0; x < universe.GetLength(0); x++)
+                {
+                    universe[x, y] = false;
+                }
+            }
+
+            // Iterate through the universe in the x, top to bottom
+            for (int y = 0; y < universe.GetLength(1); y++)
+            {
+                // Iterate through the universe in the y, left to right
+                for (int x = 0; x < universe.GetLength(0); x++)
+                {
+                    int num = rand.Next(0,2);
+
+                    // if number is 0, turn cell on
+                    if (num == 0) scratchPad[x, y] = true;
+                }
+            }
+
+            // Copy scratchPad to existing universe by swapping
+            bool[,] temp = universe;
+            universe = scratchPad;
+            scratchPad = temp;
+
+            // Update Strip Info
+            UpdateStripInfo();
+
+            // Invalidate Graphics Panel
+            graphicsPanel1.Invalidate();
+        }
+
+        public void UpdateStripInfo()
+        {
+            // Update status strip generations
+            toolStripStatusLabelGenerations.Text = "Generations = " + generations.ToString();
+
+            // Update Status Strip Alive
+            int aliveCount = 0; // Total count for alive cells
+            for (int y = 0; y < universe.GetLength(1); y++)
+                for (int x = 0; x < universe.GetLength(0); x++)
+                    if (universe[x, y]) aliveCount++; // Add alive cell to count
+            toolStripStatusLabel1.Text = "Alive = " + aliveCount.ToString(); // Write alive count to status
+
+            // Update Seed Strip
+            toolStripStatusLabel2.Text = "Seed = " + seed; // Write alive count to status
+        }
+
     }
 }
