@@ -134,6 +134,14 @@ namespace cos1_gol
             // A Brush for filling dead cells interiors (color)
             Brush backBrush = new SolidBrush(backColor);
 
+            // Font Setup
+            Font font = new Font("Arial", 8f);
+
+            // String Setup
+            StringFormat stringFormat = new StringFormat();
+            stringFormat.Alignment = StringAlignment.Center;
+            stringFormat.LineAlignment = StringAlignment.Center;
+
             // Iterate through the universe in the y, top to bottom
             for (int y = 0; y < universe.GetLength(1); y++)
             {
@@ -148,18 +156,12 @@ namespace cos1_gol
                     cellRect.Height = cellHeight;
 
                     // Fill the cell with a brush if alive
-                    if (universe[x, y] == true)
-                    {
-                        e.Graphics.FillRectangle(cellBrush, cellRect); // fill live cell
-                    }
-                    else
-                    {
-                        e.Graphics.FillRectangle(backBrush, cellRect); // fill dead cell
-                    }
+                    if (universe[x, y]) e.Graphics.FillRectangle(cellBrush, cellRect); // fill live cell
+                    else e.Graphics.FillRectangle(backBrush, cellRect); // fill dead cell
+
 
                     // Outline the cell with a pen if enabled
                     if(gridToolStripMenuItem.Checked) e.Graphics.DrawRectangle(gridPen, cellRect.X, cellRect.Y, cellRect.Width, cellRect.Height);
-
 
                     // If the 10x10 grid is enabled, draw
                     if (x10GridToolStripMenuItem.Checked) {
@@ -170,6 +172,20 @@ namespace cos1_gol
                         if(x % 10 == 0 && x != 0) e.Graphics.DrawRectangle(byTenPen, cellRect.X, cellRect.Y, 1, cellRect.Height);
                     }
 
+
+                    // Draw Neighbor Count If enabled
+                    if (neighborCountToolStripMenuItem.Checked){
+                        int neighbors;
+                        // Run Count Alg based off of setting option
+                        if (finiteToolStripMenuItem.Checked) neighbors = CountNeighborsFinite(x, y);
+                        else neighbors = CountNeighborsToroidal(x, y);
+
+                        if(neighbors > 0)
+                        {
+                            if (universe[x, y]) e.Graphics.DrawString(neighbors.ToString(), font, Brushes.Blue, cellRect, stringFormat); // fill live cell
+                            else e.Graphics.DrawString(neighbors.ToString(), font, Brushes.Red, cellRect, stringFormat); // fill dead cell
+                        }
+                    }
                 }
             }
 
