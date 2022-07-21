@@ -19,9 +19,9 @@ namespace cos1_gol
         bool[,] scratchPad = new bool[universeX, universeY]; // universe for new generations
         
         // Drawing colors
-        Color backColor = Color.White;
-        Color cellColor = Color.Gray;
-        Color gridColor = Color.Black;
+        Color deadColor = Color.White;
+        Color cellColor = Color.RoyalBlue;
+        Color gridColor = Color.SlateGray;
         Color byTenColor = Color.Black;
 
         // The Timer class
@@ -35,9 +35,24 @@ namespace cos1_gol
             InitializeComponent();
 
             // Setup the timer
-            timer.Interval = 100; // milliseconds
+            timer.Interval = Properties.Settings.Default.IntervalTicker; // milliseconds
             timer.Tick += Timer_Tick;
             timer.Enabled = false; // start timer running
+
+            // Initialize Settings
+            deadColor = Properties.Settings.Default.DeadCellColor;
+            cellColor = Properties.Settings.Default.AliveCellColor;
+            gridColor = Properties.Settings.Default.GridColor;
+            byTenColor = Properties.Settings.Default.By10Color;
+
+            // Initialize Universe Size
+            universeX = Properties.Settings.Default.XCells;
+            universeY = Properties.Settings.Default.YCells;
+
+            // Create new Univese
+            universe = new bool[universeX, universeY];
+            scratchPad = new bool[universeX, universeY];
+
         }
 
         // Calculate the next generation of cells
@@ -132,7 +147,7 @@ namespace cos1_gol
             Brush cellBrush = new SolidBrush(cellColor);
 
             // A Brush for filling dead cells interiors (color)
-            Brush backBrush = new SolidBrush(backColor);
+            Brush backBrush = new SolidBrush(deadColor);
 
             // Font Setup
             Font font = new Font("Arial", 8f);
@@ -355,6 +370,8 @@ namespace cos1_gol
             graphicsPanel1.Invalidate();
         }
 
+
+        // Finite Neighbor Counting
         private int CountNeighborsFinite(int x, int y){
             int count = 0;
             int xLen = universe.GetLength(0);
@@ -378,6 +395,7 @@ namespace cos1_gol
             return count;
         }
 
+        // Toroidal Neighbor Counting
         private int CountNeighborsToroidal(int x, int y){
             int count = 0;
             int xLen = universe.GetLength(0);
@@ -405,6 +423,7 @@ namespace cos1_gol
             return count;
         }
 
+        // Menu - Settings -> Options
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Options dlg = new Options();
@@ -439,25 +458,27 @@ namespace cos1_gol
             }
         }
 
+        // Menu - Settings -> Customization -> Dead Cell Color
         private void backColorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Create Instance of Dialog Box
             ColorDialog dlg = new ColorDialog();
 
             // Construct the Dialog Box
-            dlg.Color = backColor;
+            dlg.Color = deadColor;
 
             // Show Dialog Box to User & Determine Result
             if (DialogResult.OK == dlg.ShowDialog()) {
 
                 // Update Color to Chosen Color
-                backColor = dlg.Color; 
+                deadColor = dlg.Color; 
                 
                 // Invalidate Graphics Panel
                 graphicsPanel1.Invalidate();
             }
         }
 
+        // Menu - Settings -> Customization -> Alive Cell Color
         private void cellColorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Create Instance of Dialog Box
@@ -478,6 +499,7 @@ namespace cos1_gol
             }
         }
 
+        // Menu - Settings -> Customization -> Grid Color
         private void gridColorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Create Instance of Dialog Box
@@ -498,6 +520,7 @@ namespace cos1_gol
             }
         }
 
+        // Menu - Settings -> Customization -> Grid x10 Color
         private void gridX10ColorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Create Instance of Dialog Box
@@ -516,6 +539,73 @@ namespace cos1_gol
                 // Invalidate Graphics Panel
                 graphicsPanel1.Invalidate();
             }
+        }
+
+        // Handle Form Once Closed
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Update Settings Properties
+            Properties.Settings.Default.IntervalTicker = timer.Interval;
+            Properties.Settings.Default.XCells = universeX;
+            Properties.Settings.Default.YCells = universeY;
+            Properties.Settings.Default.DeadCellColor = deadColor;
+            Properties.Settings.Default.AliveCellColor = cellColor;
+            Properties.Settings.Default.GridColor = gridColor;
+            Properties.Settings.Default.By10Color = byTenColor;
+
+
+            // Save the new properties
+            Properties.Settings.Default.Save();
+        }
+
+        // Menu - Settings -> Reset Settings
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Reset Settings Properties
+            Properties.Settings.Default.Reset();
+
+            // Initialize Settings
+            timer.Interval = Properties.Settings.Default.IntervalTicker; // milliseconds
+            deadColor = Properties.Settings.Default.DeadCellColor;
+            cellColor = Properties.Settings.Default.AliveCellColor;
+            gridColor = Properties.Settings.Default.GridColor;
+            byTenColor = Properties.Settings.Default.By10Color;
+
+            // Initialize Universe Size
+            universeX = Properties.Settings.Default.XCells;
+            universeY = Properties.Settings.Default.YCells;
+
+            // Create new Univese
+            universe = new bool[universeX, universeY];
+            scratchPad = new bool[universeX, universeY];
+
+            // Invalidate Graphics Panel
+            graphicsPanel1.Invalidate();
+        }
+
+        // Menu - Settings -> Reload Settings
+        private void reloadSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Update Settings Properties
+            Properties.Settings.Default.Reload();
+
+            // Initialize Settings
+            timer.Interval = Properties.Settings.Default.IntervalTicker; // milliseconds
+            deadColor = Properties.Settings.Default.DeadCellColor;
+            cellColor = Properties.Settings.Default.AliveCellColor;
+            gridColor = Properties.Settings.Default.GridColor;
+            byTenColor = Properties.Settings.Default.By10Color;
+
+            // Initialize Universe Size
+            universeX = Properties.Settings.Default.XCells;
+            universeY = Properties.Settings.Default.YCells;
+
+            // Create new Univese
+            universe = new bool[universeX, universeY];
+            scratchPad = new bool[universeX, universeY];
+
+            // Invalidate Graphics Panel
+            graphicsPanel1.Invalidate();
         }
     }
 }
