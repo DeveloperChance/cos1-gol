@@ -182,8 +182,8 @@ namespace cos1_gol
 
                         if(neighbors > 0)
                         {
-                            if (universe[x, y]) e.Graphics.DrawString(neighbors.ToString(), font, Brushes.Blue, cellRect, stringFormat); // fill live cell
-                            else e.Graphics.DrawString(neighbors.ToString(), font, Brushes.Red, cellRect, stringFormat); // fill dead cell
+                            if (universe[x, y]) e.Graphics.DrawString(neighbors.ToString(), font, Brushes.White, cellRect, stringFormat); // fill live cell
+                            else e.Graphics.DrawString(neighbors.ToString(), font, Brushes.Black, cellRect, stringFormat); // fill dead cell
                         }
                     }
                 }
@@ -517,6 +517,5 @@ namespace cos1_gol
                 graphicsPanel1.Invalidate();
             }
         }
-
     }
 }
