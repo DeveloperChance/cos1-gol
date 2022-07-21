@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -675,5 +676,252 @@ namespace cos1_gol
             toolStripStatusLabel2.Text = "Seed = " + seed; // Write alive count to status
         }
 
+        // Menu - File -> Open
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFile();
+        }
+
+        // Menu - File -> Import
+
+        private void importToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Import();
+        }
+
+        // Menu - File -> Save
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFile();
+        }
+
+        // Menu - File -> Save As
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveAs();
+        }
+
+
+        // Toolbar - Open
+        private void openToolStripButton_Click(object sender, EventArgs e)
+        {
+            OpenFile();
+        }
+
+        // Toolbar - Save
+        private void saveToolStripButton_Click(object sender, EventArgs e)
+        {
+            SaveFile();
+        }
+
+
+        // Save To Existing File
+        public void SaveFile()
+        {
+            SaveAs();
+        }
+
+        // Save As New File
+        public void SaveAs()
+        {
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Filter = "All Files|*.*|Cells|*.cells";
+            dlg.FilterIndex = 2; dlg.DefaultExt = "cells";
+
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+                StreamWriter writer = new StreamWriter(dlg.FileName);
+
+                // Write any comments you want to include first.
+                // Prefix all comment strings with an exclamation point.
+                // Use WriteLine to write the strings to the file. 
+                // It appends a CRLF for you.
+                writer.WriteLine("!This File was Written at: " + DateTime.Now);
+
+                // Iterate through the universe one row at a time.
+                for (int y = 0; y < universe.GetLength(1); y++)
+                {
+                    // Create a string to represent the current row.
+                    String currentRow = string.Empty;
+
+                    // Iterate through the current row one cell at a time.
+                    for (int x = 0; x < universe.GetLength(0); x++)
+                    {
+                        // If the universe[x,y] is alive then append 'O' (capital O)
+                        // to the row string.
+                        // Else if the universe[x,y] is dead then append '.' (period)
+                        // to the row string.
+                        if (universe[x, y]) currentRow += "O";
+                        else currentRow += ".";
+                    }
+
+                    // Once the current row has been read through and the 
+                    // string constructed then write it to the file using WriteLine.
+                    writer.WriteLine(currentRow);
+                }
+
+                // After all rows and columns have been written then close the file.
+                writer.Close();
+            }
+        }
+
+        // Oprn Saved file
+        public void OpenFile()
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "All Files|*.*|Cells|*.cells";
+            dlg.FilterIndex = 2;
+
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+                StreamReader reader = new StreamReader(dlg.FileName);
+
+                // Create a couple variables to calculate the width and height
+                // of the data in the file.
+                int maxWidth = 0;
+                int maxHeight = 0;
+
+                // Iterate through the file once to get its size.
+                while (!reader.EndOfStream)
+                {
+                    // Read one row at a time.
+                    string row = reader.ReadLine();
+
+
+                    // If the row begins with '!' then it is a comment
+                    // and should be ignored.
+                    if (row.Substring(0, 1) == "!") continue;
+
+                    // If the row is not a comment then it is a row of cells.
+                    // Increment the maxHeight variable for each row read.
+                    maxHeight++;
+
+                    // Get the length of the current row string
+                    // and adjust the maxWidth variable if necessary.
+                    if (row.Length > maxWidth) maxWidth = row.Length;
+                }
+
+                // Resize the current universe and scratchPad
+                // to the width and height of the file calculated above.
+                universeX = maxWidth;
+                universeY = maxHeight;
+
+                // Create new Univese
+                universe = new bool[universeX, universeY];
+                scratchPad = new bool[universeX, universeY];
+
+                // Reset the file pointer back to the beginning of the file.
+                reader.BaseStream.Seek(0, SeekOrigin.Begin);
+
+                // Iterate through the file again, this time reading in the cells.
+                int yPos = 0;
+                while (!reader.EndOfStream)
+                {
+                    // Read one row at a time.
+                    string row = reader.ReadLine();
+
+                    // If the row begins with '!' then
+                    // it is a comment and should be ignored.
+                    if (row.Substring(0, 1) == "!") continue;
+
+                    // If the row is not a comment then 
+                    // it is a row of cells and needs to be iterated through.
+                    for (int xPos = 0; xPos < row.Length; xPos++)
+                    {
+                        // If row[xPos] is a 'O' (capital O) then
+                        // set the corresponding cell in the universe to alive.
+                        // If row[xPos] is a '.' (period) then
+                        // set the corresponding cell in the universe to dead.
+                        if (row[xPos] == 'O') universe[xPos, yPos] = true;
+                    }
+                    yPos++;
+                }
+
+                // Close the file.
+                reader.Close();
+            }
+
+            // Update Strip Info
+            UpdateStripInfo();
+
+            // Invalidate Graphics Panel
+            graphicsPanel1.Invalidate();
+        }
+
+        // Import File
+        public void Import()
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "All Files|*.*|Cells|*.cells";
+            dlg.FilterIndex = 2;
+
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+                StreamReader reader = new StreamReader(dlg.FileName);
+
+                // Create a couple variables to calculate the width and height
+                // of the data in the file.
+                int maxWidth = 0;
+                int maxHeight = 0;
+
+                // Iterate through the file once to get its size.
+                while (!reader.EndOfStream)
+                {
+                    // Read one row at a time.
+                    string row = reader.ReadLine();
+
+
+                    // If the row begins with '!' then it is a comment
+                    // and should be ignored.
+                    if (row.Substring(0, 1) == "!") continue;
+
+                    // If the row is not a comment then it is a row of cells.
+                    // Increment the maxHeight variable for each row read.
+                    if(maxHeight < universeX) maxHeight++;
+
+                    // Get the length of the current row string
+                    // and adjust the maxWidth variable if necessary.
+                    if (row.Length > maxWidth) maxWidth = row.Length;
+                }
+
+                // Reset the file pointer back to the beginning of the file.
+                reader.BaseStream.Seek(0, SeekOrigin.Begin);
+
+                // Iterate through the file again, this time reading in the cells.
+                int yPos = 0;
+                while (!reader.EndOfStream)
+                {
+                    if (yPos > universeY) break;
+                    // Read one row at a time.
+                    string row = reader.ReadLine();
+
+                    // If the row begins with '!' then
+                    // it is a comment and should be ignored.
+                    if (row.Substring(0, 1) == "!") continue;
+
+                    // If the row is not a comment then 
+                    // it is a row of cells and needs to be iterated through.
+                    for (int xPos = 0; xPos < row.Length; xPos++)
+                    {
+                        if (xPos > universeX) break;
+                        // If row[xPos] is a 'O' (capital O) then
+                        // set the corresponding cell in the universe to alive.
+                        // If row[xPos] is a '.' (period) then
+                        // set the corresponding cell in the universe to dead.
+                        if (row[xPos] == 'O') universe[xPos, yPos] = true;
+                    }
+                    yPos++;
+                }
+
+                // Close the file.
+                reader.Close();
+            }
+
+            // Update Strip Info
+            UpdateStripInfo();
+
+            // Invalidate Graphics Panel
+            graphicsPanel1.Invalidate();
+        }
     }
 }
