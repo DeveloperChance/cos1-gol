@@ -199,7 +199,36 @@ namespace cos1_gol
                             else e.Graphics.DrawString(neighbors.ToString(), font, Brushes.Black, cellRect, stringFormat); // fill dead cell
                         }
                     }
+
                 }
+            }
+
+            // Draw HUD If Enabled
+            if (hUDToolStripMenuItem.Checked)
+            {
+                // HUD String Setup
+                StringFormat hudStringFormat = new StringFormat();
+
+                // HUD Font Setip
+                Font hudFont = new Font("Open Sans", 13f);
+
+                // Draw HUD Rectangle
+                Rectangle hudRect = new Rectangle(0, graphicsPanel1.ClientSize.Height - 92, 256, 256);
+
+
+                // Draw HUD Data
+                // Current Generation
+                e.Graphics.DrawString("Generation: " + generations, hudFont, Brushes.Black, hudRect, hudStringFormat);
+
+                // Alive Cell Count
+                e.Graphics.DrawString("\nAlive Cells: " + getAliveCount(), hudFont, Brushes.Black, hudRect, hudStringFormat);
+
+                // Boundry Type
+                string BoundryType = toroidalToolStripMenuItem.Checked ? "Toroidal" : "Finite";
+                e.Graphics.DrawString("\n\nBoundry Type: " + BoundryType, hudFont, Brushes.Black, hudRect, hudStringFormat);
+
+                // Universe Size
+                e.Graphics.DrawString("\n\n\nUniverse Size: " + universeX + "x" + universeY, hudFont, Brushes.Black, hudRect, hudStringFormat);
             }
 
             // Cleaning up pens and brushes
@@ -660,65 +689,72 @@ namespace cos1_gol
             graphicsPanel1.Invalidate();
         }
 
+        // Handle Status Strip Info
         public void UpdateStripInfo()
         {
             // Update status strip generations
             toolStripStatusLabelGenerations.Text = "Generations = " + generations.ToString();
 
-            // Update Status Strip Alive
-            int aliveCount = 0; // Total count for alive cells
-            for (int y = 0; y < universe.GetLength(1); y++)
-                for (int x = 0; x < universe.GetLength(0); x++)
-                    if (universe[x, y]) aliveCount++; // Add alive cell to count
+            int aliveCount = getAliveCount();
             toolStripStatusLabel1.Text = "Alive = " + aliveCount.ToString(); // Write alive count to status
 
             // Update Seed Strip
             toolStripStatusLabel2.Text = "Seed = " + seed; // Write alive count to status
         }
 
+        public int getAliveCount()
+        {
+            // Update Status Strip Alive
+            int aliveCount = 0; // Total count for alive cells
+            for (int y = 0; y < universe.GetLength(1); y++)
+                for (int x = 0; x < universe.GetLength(0); x++)
+                    if (universe[x, y]) aliveCount++; // Add alive cell to count
+            return aliveCount;
+        }
+
         // Menu - File -> Open
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFile();
+            OpenFile(); // Call OpenFile()
         }
 
         // Menu - File -> Import
 
         private void importToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Import();
+            Import(); // Call Import()
         }
 
         // Menu - File -> Save
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveFile();
+            SaveFile(); // Call SaveFile()
         }
 
         // Menu - File -> Save As
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveAs();
+            SaveAs(); // Call SaveAs()
         }
 
 
         // Toolbar - Open
         private void openToolStripButton_Click(object sender, EventArgs e)
         {
-            OpenFile();
+            OpenFile(); // Call OpenFile()
         }
 
         // Toolbar - Save
         private void saveToolStripButton_Click(object sender, EventArgs e)
         {
-            SaveFile();
+            SaveFile(); // call SaveFile()
         }
 
 
         // Save To Existing File
         public void SaveFile()
         {
-            SaveAs();
+            SaveAs(); // Call SaveAs()
         }
 
         // Save As New File
